@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "432063741450",
+    "project_id": "hobby-tracker-8de1d",
+    "storage_bucket": "hobby-tracker-8de1d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:432063741450:android:c022d203110533d09c29f3",
+        "android_client_info": {
+          "package_name": "com.example.hobbytracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "432063741450-hkg6b935no4ve0f669r94ns3cp3usag2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAV9RNhru33TEk0a7jgWf-p2Bx8FQaXQs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "432063741450-hkg6b935no4ve0f669r94ns3cp3usag2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
