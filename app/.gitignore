@@ -1,1 +1,9 @@
-/build
+# Android
+build/
+.gradle/
+local.properties
+*.iml
+.idea/
+
+# Firebase
+google-services.json
