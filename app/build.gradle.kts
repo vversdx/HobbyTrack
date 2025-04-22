@@ -44,6 +44,8 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.junit.ktx)
+    testImplementation(libs.junit)
     implementation(platform(libs.firebase.bom.v3270))
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)

@@ -1,6 +1,9 @@
 [versions]
 agp = "8.9.1"
 firebaseBomVersion = "32.7.0"
+junit = "4.13.2"
+junitJupiterApi = "5.8.2"
+junitJupiterEngine = "5.8.2"
 kotlin = "2.0.21"
 androidxCore = "1.16.0"
 composeBom = "2025.04.00"
@@ -12,6 +15,7 @@ navigationCompose = "2.8.9"
 playServicesAuth = "21.3.0"
 material3 = "1.3.2"
 composeCompiler = "1.5.11"
+junitKtx = "1.2.1"
 
 [libraries]
 # AndroidX
@@ -39,9 +43,13 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 
 # Google
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
+junit = { module = "junit:junit", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiterEngine" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiterApi" }
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 material = { group = "com.google.android.material", name = "material", version = "1.12.0" }
+androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
