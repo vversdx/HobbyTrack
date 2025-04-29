@@ -14,12 +14,9 @@ import kotlinx.coroutines.launch
 import android.util.Log
 
 class MainViewModel : ViewModel() {
-    // Инициализация Firebase
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
     private var snapshotListener: ListenerRegistration? = null
-
-    // Состояния
     private val _categories = MutableStateFlow<List<HobbyCategory>>(emptyList())
     val categories: StateFlow<List<HobbyCategory>> = _categories
 
@@ -43,7 +40,6 @@ class MainViewModel : ViewModel() {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                // Стартовый список категорий (можно заменить на загрузку из Firestore)
                 _categories.value = listOf(
                     HobbyCategory(id = "1", name = "Музыка", iconRes = R.drawable.ic_music),
                     HobbyCategory(id = "2", name = "Искусство", iconRes = R.drawable.ic_art),
@@ -75,13 +71,11 @@ class MainViewModel : ViewModel() {
                     return@addSnapshotListener
                 }
 
-                // Группируем хобби по categoryId и подсчитываем количество
                 val countsMap = snapshot?.documents
                     ?.groupBy { it.getString("categoryId") ?: "" }
                     ?.mapValues { it.value.size }
                     ?: emptyMap()
 
-                // Обновляем счетчики в категориях
                 _categories.update { currentCategories ->
                     currentCategories.map { category ->
                         category.copy(hobbyCount = countsMap[category.id] ?: 0)

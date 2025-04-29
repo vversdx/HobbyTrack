@@ -44,7 +44,12 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.activity.compose.v180)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.coil.compose)
+    implementation(libs.accompanist.permissions)
     implementation(libs.androidx.junit.ktx)
+    implementation(libs.firebase.storage.ktx)
     testImplementation(libs.junit)
     implementation(platform(libs.firebase.bom.v3270))
     implementation(libs.firebase.auth.ktx)

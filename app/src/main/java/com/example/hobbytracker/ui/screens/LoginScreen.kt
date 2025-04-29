@@ -1,18 +1,24 @@
 package com.example.hobbytracker.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.hobbytracker.navigation.Screen
 import com.example.hobbytracker.viewmodels.AuthViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.hobbytracker.R
 
 @Composable
 fun LoginScreen(
@@ -31,8 +37,20 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        Image(
+            painter = painterResource(id = R.drawable.ic_logo),
+            contentDescription = "Логотип приложения",
+            modifier = Modifier
+                .size(140.dp)
+                .padding(top = 10.dp, bottom = 16.dp)
+        )
+
         Text(
-            text = "Вход в систему",
+            text = "Вход",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF5883D4),
             style = MaterialTheme.typography.headlineMedium
         )
 
@@ -89,14 +107,17 @@ fun LoginScreen(
             enabled = !isLoading
         ) {
             if (isLoading) CircularProgressIndicator()
-            else Text("Войти")
+            else Text("Продолжить")
         }
 
         TextButton(
             onClick = { navController.navigate(Screen.SignUp.route) },
             modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text("Нет аккаунта? Зарегистрироваться")
+            Text(
+                text ="Еще не зарегистрированы? Регистрация",
+                color = Color.Gray
+            )
         }
     }
 }

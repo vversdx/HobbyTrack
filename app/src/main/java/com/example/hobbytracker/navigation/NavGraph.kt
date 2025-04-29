@@ -12,6 +12,11 @@ import com.example.hobbytracker.ui.screens.SignUpScreen
 import com.example.hobbytracker.ui.screens.SplashScreen
 import com.example.hobbytracker.viewmodels.AuthViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.example.hobbytracker.ui.screens.imagecropper.ImageCropperScreen
+import com.example.hobbytracker.ui.screens.profile.ProfileScreen
 
 @Composable
 fun NavGraph(
@@ -48,6 +53,28 @@ fun NavGraph(
             MainScreen(
                 navController = navController,
                 viewModel = viewModel()
+            )
+        }
+
+        composable("profile") {
+            ProfileScreen(navController = navController)
+        }
+
+        composable(
+            route = "image_cropper/{image_uri}",
+            arguments = listOf(
+                navArgument("image_uri") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            ImageCropperScreen(
+                imageUri = backStackEntry.arguments?.getString("image_uri") ?: "",
+                onComplete = { bitmap ->
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("cropped_image", bitmap)
+                    navController.popBackStack()
+                },
+                onBack = { navController.popBackStack() }
             )
         }
     }

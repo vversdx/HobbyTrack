@@ -73,7 +73,7 @@ fun MainScreen(
                     IconButton(onClick = { /* Поиск */ }) {
                         Icon(Icons.Default.Search, contentDescription = "Поиск")
                     }
-                    IconButton(onClick = { navController.navigate("profile") }) {
+                    IconButton(onClick = { navController.navigate(Screen.Profile.route) }) {
                         Icon(Icons.Default.AccountCircle, contentDescription = "Профиль")
                     }
                 }
