@@ -43,13 +43,23 @@ android {
     }
 }
 
+configurations.all {
+    exclude(group = "xmlpull", module = "xmlpull")
+    exclude(group = "xpp3", module = "xpp3")
+}
+
 dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat.v161)
+    implementation(libs.androidx.foundation)
+    implementation(libs.accompanist.permissions.v0320)
     implementation(libs.androidx.activity.compose.v180)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.coil.compose)
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.junit.ktx)
     implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.navigation.safe.args.generator)
     testImplementation(libs.junit)
     implementation(platform(libs.firebase.bom.v3270))
     implementation(libs.firebase.auth.ktx)

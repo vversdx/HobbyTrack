@@ -19,6 +19,9 @@ import com.example.hobbytracker.navigation.Screen
 import com.example.hobbytracker.viewmodels.AuthViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.hobbytracker.R
+import com.example.hobbytracker.ui.theme.OutlinedText
+import com.example.hobbytracker.ui.theme.Ribeye
+import com.example.hobbytracker.util.ColorUtils
 
 @Composable
 fun LoginScreen(
@@ -45,13 +48,17 @@ fun LoginScreen(
                 .size(140.dp)
                 .padding(top = 10.dp, bottom = 16.dp)
         )
-
-        Text(
+        
+        OutlinedText(
+            textColor = Color.White,
             text = "Вход",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF5883D4),
-            style = MaterialTheme.typography.headlineMedium
+            outlineColor = ColorUtils.BluePrimary,
+            outlineWidth = 1.dp,
+            textStyle = LocalTextStyle.current.copy(
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = Ribeye
+            )
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -116,7 +123,7 @@ fun LoginScreen(
         ) {
             Text(
                 text ="Еще не зарегистрированы? Регистрация",
-                color = Color.Gray
+                color = ColorUtils.GraySecondary
             )
         }
     }

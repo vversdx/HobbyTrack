@@ -1,32 +1,30 @@
 package com.example.hobbytracker.ui.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.hobbytracker.R
 import com.example.hobbytracker.navigation.Screen
 import com.example.hobbytracker.viewmodels.AuthViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.hobbytracker.R
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
+import com.example.hobbytracker.util.ColorUtils
+import com.example.hobbytracker.ui.theme.OutlinedText
+import com.example.hobbytracker.ui.theme.Ribeye
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,160 +43,181 @@ fun SignUpScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {},
+                modifier = Modifier.height(270.dp),
+                title = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 56.dp)
+                            .padding(top = 80.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_logo),
+                                contentDescription = "Логотип",
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .padding(bottom = 8.dp),
+                                colorFilter = null
+                            )
+                            OutlinedText(
+                                textColor = Color.White,
+                                text = "Регистрация",
+                                outlineColor = ColorUtils.BluePrimary,
+                                outlineWidth = 1.dp,
+                                modifier = Modifier.padding(top = 8.dp) ,
+                                textStyle = LocalTextStyle.current.copy(
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = Ribeye
+                                )
+                            )
+                        }
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Назад"
+                        )
                     }
                 }
             )
         }
-    ) { padding ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(innerPadding)
                 .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
-            Image(
-                painter = painterResource(id = R.drawable.ic_logo),
-                contentDescription = "Логотип приложения",
-                modifier = Modifier
-                    .size(140.dp)
-                    .padding(top = 10.dp, bottom = 16.dp)
-            )
-
-            Text(
-                text = "Регистрация",
-                color = Color(0xFF5883D4),
-                style = MaterialTheme.typography.headlineMedium,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 28.dp)
-            )
-
-            OutlinedTextField(
+            CustomOutlinedTextField(
                 value = firstName,
                 onValueChange = { firstName = it },
-                label = { Text("Имя") },
-                //leadingIcon = { Icon(Icons.Default.Person, null) },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
-                modifier = Modifier.fillMaxWidth()
+                label = "Имя"
             )
 
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
+            CustomOutlinedTextField(
                 value = lastName,
                 onValueChange = { lastName = it },
-                label = { Text("Фамилия") },
-                //leadingIcon = { Icon(Icons.Default.Person, null) },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
-                modifier = Modifier.fillMaxWidth()
+                label = "Фамилия"
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
+            CustomOutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
-                //leadingIcon = { Icon(Icons.Default.Email, null) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth()
+                label = "Email",
+                keyboardType = KeyboardType.Email
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
+            CustomOutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Пароль") },
-                //leadingIcon = { Icon(Icons.Default.Lock, null) },
+                label = "Пароль",
                 visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth()
+                keyboardType = KeyboardType.Password
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
+            CustomOutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = { Text("Подтвердите пароль") },
-                //leadingIcon = { Icon(Icons.Default.Lock, null) },
+                label = "Подтвердите пароль",
                 visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth()
+                keyboardType = KeyboardType.Password
             )
 
             if (errorMessage.isNotEmpty()) {
                 Text(
                     text = errorMessage,
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(top = 8.dp)
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    fontSize = 12.sp
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
+            TextButton(
                 onClick = {
                     if (password != confirmPassword) {
                         errorMessage = "Пароли не совпадают"
-                        return@Button
+                        return@TextButton
                     }
                     if (email.isBlank() || password.isBlank()) {
                         errorMessage = "Заполните все поля"
-                        return@Button
+                        return@TextButton
                     }
                     if (firstName.isBlank() || lastName.isBlank()) {
                         errorMessage = "Введите имя и фамилию"
-                        return@Button
+                        return@TextButton
                     }
 
                     isLoading = true
                     authViewModel.signUp(email, password) { success, message ->
                         isLoading = false
                         if (success) {
-                            val currentUser = Firebase.auth.currentUser
-                            val userData = hashMapOf(
-                                "firstName" to firstName,
-                                "lastName" to lastName
-                            )
                             authViewModel.updateUserProfile(firstName, lastName) { _, _ ->
                                 navController.navigate(Screen.Main.route) {
                                     popUpTo(Screen.SignUp.route) { inclusive = true }
                                 }
                             }
                         } else {
-                            isLoading = false
                             errorMessage = message ?: "Ошибка регистрации"
                         }
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                enabled = !isLoading
+                modifier = Modifier.height(48.dp),
+                colors = ButtonDefaults.textButtonColors(
+                    containerColor = Color.Transparent
+                ),
             ) {
                 if (isLoading) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = Color(0xFF5883D4)
+                    )
                 } else {
-                    Text("Зарегистрироваться", fontSize = 16.sp)
-                }
-            }
+                    OutlinedText(
+                        text = "Зарегистрироваться",
+                        textColor = Color.White,
+                        outlineColor = ColorUtils.BluePrimary,
+                        outlineWidth = 1.dp,
+                        textStyle = LocalTextStyle.current.copy(
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Ribeye
+                        )
+                    )
 
-            TextButton(
-                onClick = { navController.navigate(Screen.Login.route) },
-                modifier = Modifier.padding(top = 16.dp)
-            ) {
-                Text("Уже есть аккаунт? Войти", style = MaterialTheme.typography.bodyMedium)
+                }
             }
         }
     }
+}
+
+@Composable
+private fun CustomOutlinedTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardType: KeyboardType = KeyboardType.Text
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, fontSize = 13.sp) },
+        visualTransformation = visualTransformation,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp),
+        textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
+        singleLine = true,
+        shape = MaterialTheme.shapes.small
+    )
 }

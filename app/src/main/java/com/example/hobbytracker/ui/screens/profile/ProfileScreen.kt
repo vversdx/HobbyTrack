@@ -1,212 +1,188 @@
 package com.example.hobbytracker.ui.screens.profile
 
-import android.net.Uri
+import android.Manifest
+import android.util.Base64
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import com.example.hobbytracker.ui.screens.imagecropper.ImageCropperScreen
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.tasks.await
+import java.io.ByteArrayOutputStream
+import androidx.compose.material.icons.filled.ArrowBack
+import com.example.hobbytracker.ui.screens.profile.components.AvatarWithEdit
+import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     navController: NavController
 ) {
+    val context = LocalContext.current
+    val auth = Firebase.auth
+    val db = Firebase.firestore
+
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(true) }
+    var avatarBase64 by remember { mutableStateOf<String?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    var tempImageUri by remember { mutableStateOf<Uri?>(null) }
-    var showImageCropper by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-
+    // Обработчик выбора изображения
     val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri ->
-            uri?.let {
-                tempImageUri = it
-                showImageCropper = true
-            }
-        }
-    )
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            try {
+                // Убираем переход к экрану обрезки
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
 
-    LaunchedEffect(Unit) {
-        try {
-            val currentUser = Firebase.auth.currentUser
-            if (currentUser != null) {
-                val document = Firebase.firestore.collection("users")
-                    .document(currentUser.uid)
-                    .get()
-                    .await()
+                // Конвертируем в base64 и сохраняем
+                val outputStream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
+                val base64 = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT)
 
-                if (document.exists()) {
-                    firstName = document.getString("firstName") ?: "Имя"
-                    lastName = document.getString("lastName") ?: "Фамилия"
+                auth.currentUser?.uid?.let { userId ->
+                    db.collection("users")
+                        .document(userId)
+                        .update("avatarBase64", base64)
+                        .addOnSuccessListener {
+                            avatarBase64 = base64
+                        }
                 }
-            } else {
-                errorMessage = "Пользователь не авторизован"
+            } catch (e: Exception) {
+                errorMessage = "Ошибка загрузки изображения"
             }
-        } catch (e: Exception) {
-            errorMessage = "Ошибка загрузки: ${e.message}"
-        } finally {
-            isLoading = false
         }
     }
 
-    if (showImageCropper && tempImageUri != null) {
-        ImageCropperScreen(
-            imageUri = tempImageUri.toString(),
-            onComplete = { bitmap ->
-                showImageCropper = false
-                // Здесь можно сохранить bitmap в Storage
-            },
-            onBack = { showImageCropper = false }
-        )
-    } else {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Профиль") },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
-                        }
-                    }
-                )
-            }
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.padding(24.dp))
-                } else {
-                    // Блок ошибок
-                    errorMessage?.let { message ->
-                        Text(
-                            text = message,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(8.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
+    // Обработчик результата обрезки
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    val croppedBitmap by savedStateHandle
+        ?.getStateFlow<Bitmap?>("cropped_bitmap", null)
+        ?.collectAsState() ?: remember { mutableStateOf(null) }
 
-                    Box(
-                        contentAlignment = Alignment.BottomEnd,
-                        modifier = Modifier.size(120.dp)
-                    ) {
-                        Surface(
-                            shape = MaterialTheme.shapes.extraLarge,
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.size(120.dp)
-                        ) {
-                            Column(
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = "${firstName.firstOrNull()?.uppercase()}${lastName.firstOrNull()?.uppercase()}",
-                                    style = MaterialTheme.typography.displayMedium
-                                )
-                            }
-                        }
-                        IconButton(
-                            onClick = { imagePicker.launch("image/*") },
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Icon(Icons.Default.Edit, contentDescription = "Изменить аватар")
-                        }
-                    }
 
-                    Spacer(modifier = Modifier.height(32.dp))
+    // Загрузка данных пользователя
+    LaunchedEffect(Unit) {
+        auth.currentUser?.uid?.let { userId ->
+            db.collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener { doc ->
+                    firstName = doc.getString("firstName") ?: ""
+                    lastName = doc.getString("lastName") ?: ""
+                    avatarBase64 = doc.getString("avatarBase64")
+                }
+        }
+    }
 
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        OutlinedTextField(
-                            value = firstName,
-                            onValueChange = { firstName = it },
-                            label = { Text("Имя") },
-                            leadingIcon = { Icon(Icons.Default.Person, null) },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        OutlinedTextField(
-                            value = lastName,
-                            onValueChange = { lastName = it },
-                            label = { Text("Фамилия") },
-                            leadingIcon = { Icon(Icons.Default.Person, null) },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Spacer(modifier = Modifier.height(32.dp))
-
-                        Button(
-                            onClick = {
-                                if (firstName.isBlank() || lastName.isBlank()) {
-                                    errorMessage = "Заполните все поля"
-                                    return@Button
-                                }
-
-                                val currentUser = Firebase.auth.currentUser
-                                if (currentUser != null) {
-                                    val userData = hashMapOf(
-                                        "firstName" to firstName,
-                                        "lastName" to lastName
-                                    )
-
-                                    Firebase.firestore.collection("users")
-                                        .document(currentUser.uid)
-                                        .set(userData)
-                                        .addOnSuccessListener {
-                                            errorMessage = null
-                                        }
-                                        .addOnFailureListener { e ->
-                                            errorMessage = "Ошибка сохранения: ${e.message}"
-                                        }
-                                } else {
-                                    errorMessage = "Пользователь не авторизован"
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp))
-                        {
-                            Text("Сохранить изменения", fontSize = 16.sp)
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        TextButton(
-                            onClick = {
-                                Firebase.auth.signOut()
-                                navController.navigate("login") { popUpTo(0) }
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Выйти из аккаунта", color = MaterialTheme.colorScheme.error)
-                        }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Профиль") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад")
                     }
                 }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AvatarWithEdit(
+                avatarBase64 = avatarBase64,
+                initials = "${firstName.firstOrNull()}${lastName.firstOrNull()}",
+                onEditClicked = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ||
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.READ_EXTERNAL_STORAGE
+                        ) == PackageManager.PERMISSION_GRANTED) {
+                        imagePicker.launch("image/*")
+                    } else {
+                        errorMessage = "Требуется разрешение на доступ к хранилищу"
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            OutlinedTextField(
+                value = firstName,
+                onValueChange = { firstName = it },
+                label = { Text("Имя") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = lastName,
+                onValueChange = { lastName = it },
+                label = { Text("Фамилия") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Button(
+                onClick = {
+                    auth.currentUser?.uid?.let { userId ->
+                        db.collection("users")
+                            .document(userId)
+                            .update(
+                                mapOf(
+                                    "firstName" to firstName,
+                                    "lastName" to lastName
+                                )
+                            )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Сохранить")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(
+                onClick = {
+                    auth.signOut()
+                    navController.navigate("login") { popUpTo(0) }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Выйти", color = MaterialTheme.colorScheme.error)
+            }
+
+            errorMessage?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(8.dp)
+                )
             }
         }
     }
