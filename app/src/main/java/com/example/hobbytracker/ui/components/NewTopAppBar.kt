@@ -93,7 +93,7 @@ fun NewTopAppBar(
             },
             actions = {
                 IconButton(
-                    onClick = { /* Поиск */ },
+                    onClick = { }, //TODO поиск
                     modifier = Modifier
                         .size(40.dp)
                         .padding(end = rightPadding)
@@ -164,7 +164,6 @@ private fun DrawerContent(
                     }
 
                     profileState.photoUrl != null -> {
-                        // Здесь можно использовать Coil или другой библиотеки для загрузки
                         AsyncImageLoader(url = profileState.photoUrl!!)
                     }
 

@@ -29,8 +29,6 @@ import com.example.hobbytracker.ui.components.NewTopAppBar
 import com.example.hobbytracker.viewmodels.MainViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.hobbytracker.util.ColorUtils
-import com.example.hobbytracker.util.ColorUtils.BluePrimaryLight
-import com.example.hobbytracker.util.ColorUtils.GrayPrimaryDark
 
 @Composable
 fun MainScreen(
@@ -74,7 +72,7 @@ fun MainScreen(
                             navController.navigate(Screen.HobbyCategory.createRoute(category.id))
                         },
                         onAddClick = {
-                            // Пока оставляем пустым
+                            // TODO Плюсики
                         }
                     )
                 }
@@ -113,7 +111,7 @@ fun CategoryItem(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
-                // Контейнер для иконки категории
+
                 Box(
                     modifier = Modifier
                         .size(72.dp)
@@ -124,8 +122,8 @@ fun CategoryItem(
                         painter = painterResource(id = category.iconRes),
                         contentDescription = null,
                         modifier = Modifier
-                            .sizeIn(maxWidth = 44.dp, maxHeight = 44.dp) // Ограничение размера
-                            .aspectRatio(1f), // Сохранение пропорций
+                            .sizeIn(maxWidth = 44.dp, maxHeight = 44.dp)
+                            .aspectRatio(1f),
                         tint = Color.Black
                     )
                 }
@@ -143,7 +141,7 @@ fun CategoryItem(
                 )
             }
 
-            // Кнопка добавления
+            // TODO Плюсики
             IconButton(
                 onClick = { onAddClick() },
                 modifier = Modifier

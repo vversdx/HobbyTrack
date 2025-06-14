@@ -51,8 +51,6 @@ fun SignUpScreen(
                     .height(270.dp)
                     .background(Color.Transparent)
             ) {
-
-                // Кнопка назад
                 IconButton(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier
@@ -65,8 +63,6 @@ fun SignUpScreen(
                         tint = ColorUtils.PrimaryColor()
                     )
                 }
-
-                // Центральное содержимое
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

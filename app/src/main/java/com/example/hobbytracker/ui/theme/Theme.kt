@@ -71,7 +71,6 @@ fun HobbyTrackerTheme(
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
-    // Сохраняем текущее состояние темы
     HobbyTrackerTheme.isDarkTheme = darkTheme
 
     MaterialTheme(

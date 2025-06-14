@@ -51,11 +51,8 @@ class AuthViewModel : ViewModel() {
         lastName: String
     ): Result<Unit> {
         return try {
-            // 1. Создаём пользователя в Firebase Auth
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
             val userId = authResult.user?.uid ?: throw Exception("User creation failed")
-
-            // 2. Сохраняем дополнительные данные в Firestore
             val userData = hashMapOf(
                 "firstName" to firstName,
                 "lastName" to lastName,
@@ -80,24 +77,5 @@ class AuthViewModel : ViewModel() {
 
     fun logout() {
         auth.signOut()
-    }
-
-    suspend fun migrateUserData(userId: String) {
-        try {
-            val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
-            FirebaseFirestore.getInstance().runTransaction { transaction ->
-                val snapshot = transaction.get(userRef)
-                val updates = mutableMapOf<String, Any>()
-
-                if (!snapshot.contains("middleName")) updates["middleName"] = ""
-                if (!snapshot.contains("phone")) updates["phone"] = ""
-
-                if (updates.isNotEmpty()) {
-                    transaction.update(userRef, updates)
-                }
-            }.await()
-        } catch (e: Exception) {
-            Log.e("Migration", "Ошибка миграции данных", e)
-        }
     }
 }

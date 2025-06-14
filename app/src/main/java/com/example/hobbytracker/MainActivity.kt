@@ -19,14 +19,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        // Инициализация зависимостей
         val appSettings = AppSettings(this)
         val viewModelFactory = SettingsViewModelFactory(appSettings)
-
-        // Получение ViewModel с фабрикой
         val viewModel: SettingsViewModel by viewModels { viewModelFactory }
-
         setContent {
             val darkTheme = viewModel.darkTheme.value
 

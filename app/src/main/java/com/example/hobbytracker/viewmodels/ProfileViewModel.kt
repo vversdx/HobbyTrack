@@ -123,29 +123,17 @@ class ProfileViewModel : ViewModel() {
         val userId = auth.currentUser?.uid ?: return false
 
         return try {
-            // Загрузка изображения
             val bitmap = ImageUtils.uriToBitmap(context, uri)
             bitmap?.let {
-                // Сохраняем в кэш сразу
                 ImageUtils.saveBitmapToCache(context, it, userId)
-
-                // Обновляем состояние ДО загрузки на сервер
                 _state.value = _state.value.copy(
                     profileImage = it
                 )
             }
-
-            // Загрузка в Storage
             val ref = storage.reference.child("profile_images/$userId/${UUID.randomUUID()}.jpg")
             ref.putFile(uri).await()
-
-            // Получение URL
             val url = ref.downloadUrl.await().toString()
-
-            // Обновление Firestore
             db.collection("users").document(userId).update("photoUrl", url).await()
-
-            // Обновление состояния с URL
             _state.value = _state.value.copy(
                 photoUrl = url
             )

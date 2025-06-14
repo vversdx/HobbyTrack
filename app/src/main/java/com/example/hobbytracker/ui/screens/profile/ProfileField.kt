@@ -31,7 +31,7 @@ fun ProfileField(
     onValueChange: (String) -> Unit,
     label: String,
     iconResId: Int? = null,
-    isEditable: Boolean = true,  // Возвращаем параметр
+    isEditable: Boolean = true,
     isEditing: Boolean,
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
@@ -59,8 +59,6 @@ fun ProfileField(
                 style = MaterialTheme.typography.bodySmall,
                 color = if (isDarkTheme) ColorUtils.MainBlueDark else Color.Gray
             )
-
-            // Возвращаем проверку isEditable && isEditing
             if (isEditable && isEditing) {
                 BasicTextField(
                     value = value,

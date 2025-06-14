@@ -16,13 +16,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.hobbytracker.ui.components.AppSettings
 import com.example.hobbytracker.viewmodels.SettingsViewModel
-import com.example.hobbytracker.ui.theme.HobbyTrackerTheme
-import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.hobbytracker.navigation.Screen
 import com.example.hobbytracker.viewmodels.AuthViewModel
 import com.example.hobbytracker.viewmodels.SettingsViewModelFactory
@@ -36,10 +33,7 @@ fun SettingsScreen(
     profileViewModel: ProfileViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val viewModel: SettingsViewModel = viewModel(
-        factory = SettingsViewModelFactory(AppSettings(context))
-    )
-
+    val viewModel: SettingsViewModel = viewModel(factory = SettingsViewModelFactory(AppSettings(context)))
     val isDarkTheme by viewModel.darkTheme
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -75,10 +69,7 @@ fun SettingsScreen(
                     onCheckedChange = { viewModel.toggleTheme(it) }
                 )
             }
-
             Spacer(modifier = Modifier.weight(1f))
-
-            // Кнопка выхода
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -93,8 +84,6 @@ fun SettingsScreen(
                 )
             }
         }
-
-        // Диалог подтверждения
         if (showLogoutDialog) {
             AlertDialog(
                 onDismissRequest = { showLogoutDialog = false },
