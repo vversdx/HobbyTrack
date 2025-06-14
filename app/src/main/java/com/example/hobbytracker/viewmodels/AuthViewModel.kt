@@ -1,5 +1,6 @@
 package com.example.hobbytracker.viewmodels
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -16,179 +17,87 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.storage.FirebaseStorage
+import java.io.File
 import java.util.UUID
 
 class AuthViewModel : ViewModel() {
-    val currentUserId: String
-        get() = FirebaseAuth.getInstance().currentUser?.uid ?: ""
-    private val auth = FirebaseAuth.getInstance()
+    val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
 
-    private val _isLoggedIn = MutableStateFlow(auth.currentUser != null)
-    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Unauthenticated)
+    val authState: StateFlow<AuthState> = _authState
 
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage
-
-    fun createUserProfile(userId: String, email: String) {
-        val userRef = FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(userId)
-
-        val userData = hashMapOf(
-            "email" to email,
-            "createdAt" to FieldValue.serverTimestamp()
-        )
-
-        userRef.set(userData)
-            .addOnSuccessListener {
-                Log.d("Auth", "Профиль пользователя создан")
-            }
-            .addOnFailureListener { e ->
-                Log.e("Auth", "Ошибка создания профиля", e)
-            }
+    sealed class AuthState {
+        object Unauthenticated : AuthState()
+        data class Authenticated(val userId: String) : AuthState()
+        data class Error(val message: String) : AuthState()
     }
-
-    fun signUp(
-        email: String,
-        password: String,
-        onResult: (Boolean, String?) -> Unit
-    ) {
-        viewModelScope.launch {
-            try {
-                val authResult = auth.createUserWithEmailAndPassword(email, password).await()
-                val user = authResult.user
-                user?.let {
-                    val userData = hashMapOf(
-                        "email" to email,
-                        "createdAt" to System.currentTimeMillis()
-                    )
-
-                    db.collection("users")
-                        .document(user.uid)
-                        .set(userData)
-                        .await()
-
-                    _isLoggedIn.value = true
-                    onResult(true, null)
-                } ?: run {
-                    onResult(false, "Ошибка создания пользователя")
-                }
-            } catch (e: FirebaseAuthWeakPasswordException) {
-                onResult(false, "Пароль должен содержать минимум 6 символов")
-            } catch (e: FirebaseAuthInvalidCredentialsException) {
-                onResult(false, "Некорректный email")
-            } catch (e: FirebaseAuthUserCollisionException) {
-                onResult(false, "Пользователь уже существует")
-            } catch (e: Exception) {
-                onResult(false, "Ошибка регистрации: ${e.message}")
-            }
-        }
-    }
-
-    fun login(email: String, password: String, callback: (Boolean, String?) -> Unit) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _isLoggedIn.value = true
-                    callback(true, null)
-                } else {
-                    callback(false, task.exception?.message)
-                }
-            }
-    }
-
-    private val _userData = MutableStateFlow<UserData?>(null)
-    val userData: StateFlow<UserData?> = _userData
-
-    data class UserData(
-        val email: String,
-        val firstName: String,
-        val lastName: String,
-        val profileImageUrl: String? = null
-    )
 
     init {
-        loadUserData()
-    }
-
-    private fun loadUserData() {
-        val user = auth.currentUser ?: return
-
-        db.collection("users").document(user.uid)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    Log.e("AuthViewModel", "Error loading user data", error)
-                    return@addSnapshotListener
-                }
-
-                snapshot?.let {
-                    _userData.value = UserData(
-                        email = it.getString("email") ?: "",
-                        firstName = it.getString("firstName") ?: "",
-                        lastName = it.getString("lastName") ?: "",
-                        profileImageUrl = it.getString("profileImageUrl")
-                    )
-                }
+        auth.addAuthStateListener { firebaseAuth ->
+            firebaseAuth.currentUser?.let { user ->
+                _authState.value = AuthState.Authenticated(user.uid)
+            } ?: run {
+                _authState.value = AuthState.Unauthenticated
             }
-    }
-
-    fun updateUserProfile(
-        firstName: String,
-        lastName: String,
-        onComplete: (Boolean, String?) -> Unit
-    ) {
-        val user = auth.currentUser ?: run {
-            onComplete(false, "User not logged in")
-            return
         }
+    }
 
-        viewModelScope.launch {
-            try {
-                val updates = mapOf(
-                    "firstName" to firstName,
-                    "lastName" to lastName
-                )
+    suspend fun signUp(
+        email: String,
+        password: String,
+        firstName: String,
+        lastName: String
+    ): Result<Unit> {
+        return try {
+            // 1. Создаём пользователя в Firebase Auth
+            val authResult = auth.createUserWithEmailAndPassword(email, password).await()
+            val userId = authResult.user?.uid ?: throw Exception("User creation failed")
 
-                db.collection("users").document(user.uid)
-                    .update(updates)
-                    .await()
+            // 2. Сохраняем дополнительные данные в Firestore
+            val userData = hashMapOf(
+                "firstName" to firstName,
+                "lastName" to lastName,
+                "email" to email
+            )
 
-                onComplete(true, null)
-            } catch (e: Exception) {
-                onComplete(false, "Error updating profile: ${e.message}")
-            }
+            db.collection("users").document(userId).set(userData).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun login(email: String, password: String): Result<Unit> {
+        return try {
+            auth.signInWithEmailAndPassword(email, password).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
     fun logout() {
         auth.signOut()
-        _isLoggedIn.value = false
-        _userData.value = null
     }
 
-    fun uploadProfileImage(uri: Uri, onComplete: (String?) -> Unit) {
-        val user = auth.currentUser ?: run {
-            onComplete(null)
-            return
-        }
+    suspend fun migrateUserData(userId: String) {
+        try {
+            val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+            FirebaseFirestore.getInstance().runTransaction { transaction ->
+                val snapshot = transaction.get(userRef)
+                val updates = mutableMapOf<String, Any>()
 
-        val storageRef = storage.reference
-        val imageRef = storageRef.child("profile_images/${user.uid}/${UUID.randomUUID()}.jpg")
+                if (!snapshot.contains("middleName")) updates["middleName"] = ""
+                if (!snapshot.contains("phone")) updates["phone"] = ""
 
-        imageRef.putFile(uri)
-            .addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    db.collection("users").document(user.uid)
-                        .update("profileImageUrl", downloadUri.toString())
-                        .addOnSuccessListener {
-                            onComplete(downloadUri.toString())
-                        }
+                if (updates.isNotEmpty()) {
+                    transaction.update(userRef, updates)
                 }
-            }
-            .addOnFailureListener {
-                onComplete(null)
-            }
+            }.await()
+        } catch (e: Exception) {
+            Log.e("Migration", "Ошибка миграции данных", e)
+        }
     }
 }

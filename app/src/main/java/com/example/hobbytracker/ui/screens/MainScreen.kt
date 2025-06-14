@@ -1,39 +1,13 @@
 package com.example.hobbytracker.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,19 +15,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.hobbytracker.R
 import com.example.hobbytracker.data.HobbyCategory
 import com.example.hobbytracker.navigation.Screen
+import com.example.hobbytracker.ui.components.NewTopAppBar
 import com.example.hobbytracker.viewmodels.MainViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.hobbytracker.util.ColorUtils
+import com.example.hobbytracker.util.ColorUtils.BluePrimaryLight
+import com.example.hobbytracker.util.ColorUtils.GrayPrimaryDark
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     navController: NavController,
@@ -61,110 +39,122 @@ fun MainScreen(
 ) {
     val categories by viewModel.categories.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Мои Хобби") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary
-                ),
-                actions = {
-                    IconButton(onClick = { /* Поиск */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Поиск")
-                    }
-                    IconButton(onClick = { navController.navigate(Screen.Profile.route) }) {
-                        Icon(Icons.Default.AccountCircle, contentDescription = "Профиль")
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate("add_hobby") },
-                containerColor = MaterialTheme.colorScheme.primary
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            modifier = Modifier.zIndex(0f),
+            topBar = { Box(modifier = Modifier.height(48.dp)) },
+            floatingActionButton = {}
+        ) { padding ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .background(MaterialTheme.colorScheme.background),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(17.dp) // отступ между карточками
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Добавить", tint = Color.White)
+                item {
+                    Text(
+                        text = "Hobby",
+                        style = MaterialTheme.typography.displayLarge.copy(
+                            color = ColorUtils.HobbyCategoryColor(),
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 60.sp
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 30.dp), // отступ сверху и снизу
+                        textAlign = TextAlign.Center
+                    )
+                }
+                items(categories) { category ->
+                    CategoryItem(
+                        category = category,
+                        onCategoryClick = {
+                            navController.navigate(Screen.HobbyCategory.createRoute(category.id))
+                        },
+                        onAddClick = {
+                            // Пока оставляем пустым
+                        }
+                    )
+                }
             }
         }
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item {
-                Text(
-                    text = "Категории",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-            }
 
-            items(categories) { category ->
-                CategoryItem(
-                    category = category,
-                    onCategoryClick = {
-                        navController.navigate(
-                            Screen.HobbyCategory.createRoute(category.id)
-                        )
-                    }
-                )
-            }
-        }
+        NewTopAppBar(navController = navController)
     }
 }
 
 @Composable
 fun CategoryItem(
     category: HobbyCategory,
-    onCategoryClick: () -> Unit
+    onCategoryClick: () -> Unit,
+    onAddClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCategoryClick() },
-        shape = RoundedCornerShape(12.dp),
+            .padding(horizontal = 20.dp)
+            .height(80.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = ColorUtils.HobbyCategoryColor()
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.secondaryContainer),
-                contentAlignment = Alignment.Center
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
             ) {
-                Icon(
-                    painter = painterResource(id = category.iconRes),
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                // Контейнер для иконки категории
+                Box(
+                    modifier = Modifier
+                        .size(72.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = category.iconRes),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .sizeIn(maxWidth = 44.dp, maxHeight = 44.dp) // Ограничение размера
+                            .aspectRatio(1f), // Сохранение пропорций
+                        tint = Color.Black
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Text(
+                    text = category.name,
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        color = ColorUtils.CategoryName(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 32.sp
+                    ),
+                    modifier = Modifier.padding(end = 16.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
+            // Кнопка добавления
+            IconButton(
+                onClick = { onAddClick() },
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
             ) {
-                Text(
-                    text = category.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "${category.hobbyCount} активностей",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_plus),
+                    contentDescription = "Добавить хобби",
+                    modifier = Modifier.size(32.dp),
+                    tint = Color.White
                 )
             }
         }

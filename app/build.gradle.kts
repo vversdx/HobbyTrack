@@ -49,6 +49,7 @@ configurations.all {
 }
 
 dependencies {
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat.v161)
     implementation(libs.androidx.foundation)
@@ -60,6 +61,10 @@ dependencies {
     implementation(libs.androidx.junit.ktx)
     implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.navigation.safe.args.generator)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.exifinterface)
+    implementation(libs.androidx.ui.tooling.preview.android)
+    implementation(libs.ads.mobile.sdk)
     testImplementation(libs.junit)
     implementation(platform(libs.firebase.bom.v3270))
     implementation(libs.firebase.auth.ktx)

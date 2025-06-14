@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/main_screen">
+
+    <fragment
+        android:id="@+id/main_screen"
+        android:name="com.example.hobbytracker.ui.screens.MainScreen"
+        android:label="Main Screen"
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_main_to_profile"
+            app:destination="@id/profile_screen" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profile_screen"
+        android:name="com.example.hobbytracker.ui.screens.profile.ProfileScreen"
+        android:label="Profile Screen"
+        tools:layout="@layout/fragment_profile" />
+
+    <!-- Добавьте другие экраны по аналогии -->
+    
+</navigation>

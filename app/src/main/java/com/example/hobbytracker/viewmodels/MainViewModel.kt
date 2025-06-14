@@ -42,8 +42,8 @@ class MainViewModel : ViewModel() {
             try {
                 _categories.value = listOf(
                     HobbyCategory(id = "1", name = "Музыка", iconRes = R.drawable.ic_music),
-                    HobbyCategory(id = "2", name = "Искусство", iconRes = R.drawable.ic_art),
-                    HobbyCategory(id = "3", name = "Спорт", iconRes = R.drawable.ic_sport),
+                    HobbyCategory(id = "2", name = "Спорт", iconRes = R.drawable.ic_sport),
+                    HobbyCategory(id = "3", name = "Искусство", iconRes = R.drawable.ic_art),
                     HobbyCategory(id = "4", name = "Чтение", iconRes = R.drawable.ic_reading),
                     HobbyCategory(id = "5", name = "Игры", iconRes = R.drawable.ic_games),
                     HobbyCategory(id = "6", name = "Другое", iconRes = R.drawable.ic_other)
@@ -84,7 +84,4 @@ class MainViewModel : ViewModel() {
             }
     }
 
-    fun refreshData() {
-        loadInitialCategories()
-    }
 }

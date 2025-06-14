@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Файлы из внешнего хранилища приложения -->
+    <external-files-path 
+        name="my_images" 
+        path="Pictures" />
+        
+    <!-- Файлы из кэша приложения -->
+    <cache-path 
+        name="my_cache" 
+        path="/" />
+        
+    <!-- Для работы с файлами в корне внешнего хранилища -->
+    <external-path 
+        name="external_files" 
+        path="." />
+</paths>
