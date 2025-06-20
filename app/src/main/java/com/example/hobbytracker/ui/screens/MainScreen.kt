@@ -29,6 +29,7 @@ import com.example.hobbytracker.ui.components.NewTopAppBar
 import com.example.hobbytracker.viewmodels.MainViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.hobbytracker.util.ColorUtils
+import android.util.Log
 
 @Composable
 fun MainScreen(
@@ -49,7 +50,7 @@ fun MainScreen(
                     .padding(padding)
                     .background(MaterialTheme.colorScheme.background),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(17.dp) // отступ между карточками
+                verticalArrangement = Arrangement.spacedBy(17.dp)
             ) {
                 item {
                     Text(
@@ -61,16 +62,14 @@ fun MainScreen(
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 30.dp), // отступ сверху и снизу
+                            .padding(vertical = 30.dp),
                         textAlign = TextAlign.Center
                     )
                 }
                 items(categories) { category ->
                     CategoryItem(
                         category = category,
-                        onCategoryClick = {
-                            navController.navigate(Screen.HobbyCategory.createRoute(category.id))
-                        },
+                        navController = navController,
                         onAddClick = {
                             // TODO Плюсики
                         }
@@ -86,14 +85,35 @@ fun MainScreen(
 @Composable
 fun CategoryItem(
     category: HobbyCategory,
-    onCategoryClick: () -> Unit,
+    navController: NavController,
     onAddClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
-            .height(80.dp),
+            .height(80.dp)
+            .clickable {
+                Log.d("CategoryItem", "Clicked category: ${category.name}, id: ${category.id}")
+                if (category.id == "1") {
+                    navController.navigate(Screen.MusicHobby.route)
+                }
+                else if (category.id == "2"){
+                    navController.navigate(Screen.SportHobby.route)
+                }
+                else if (category.id == "3"){
+                    navController.navigate(Screen.ArtHobby.route)
+                }
+                else if (category.id == "4"){
+                    navController.navigate(Screen.ReadingHobby.route)
+                }
+                else if (category.id == "5"){
+                    navController.navigate(Screen.GamesHobby.route)
+                }
+                else if (category.id == "6"){
+                    navController.navigate(Screen.OtherHobby.route)
+                }
+            },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = ColorUtils.HobbyCategoryColor()

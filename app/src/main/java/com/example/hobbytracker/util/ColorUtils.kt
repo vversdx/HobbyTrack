@@ -2,7 +2,6 @@ package com.example.hobbytracker.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.example.hobbytracker.data.HobbyCategory
 import com.example.hobbytracker.ui.theme.HobbyTrackerTheme.isDarkTheme
 
 object ColorUtils {
@@ -23,26 +22,21 @@ object ColorUtils {
     val MainBlueDark = Color(0xFF061045)
 
     val HobbyCategoryLight = Color(0xFFC7E1FF)
-    val HobbyCategoryDark = Color(0xFFA8B4C2)
+    val HobbyCategoryDark = Color(0xFFDDE6F4)
 
     val TopBarLight = Color(0xFFD9E3FB)
-    val TopBarDark = Color(0xFFA8B4C2)
+    val TopBarDark = Color(0xFFDDE6F4)
 
-    val translucentBlue = BluePrimaryLight.copy(alpha = 0.8f)
-    val transientGray = Color(0xFF8790A7).copy(alpha = 0.8f)
+    val translucentLight = BluePrimaryLight.copy(alpha = 0.8f)
+    val transientDark = Color(0xFF28355D).copy(alpha = 0.8f)
 
-    val GrayProfile = Color(0xFFC1C1C1)
+    val GrayProfile = Color(0xFFEFF6FF)
 
     val TextFieldColor = Color(0xFFD9D9D9)
 
     @Composable
     fun MainBlue(): Color {
         return if (isDarkTheme) MainBlueDark else MainBlueLight
-    }
-
-    @Composable
-    fun DrawerColor(): Color{
-        return if (isDarkTheme) MainBlueDark else Color.White
     }
 
     @Composable
@@ -57,7 +51,7 @@ object ColorUtils {
 
     @Composable
     fun translucentColor(): Color {
-            return if (isDarkTheme) transientGray else translucentBlue
+            return if (isDarkTheme) transientDark else translucentLight
     }
 
     @Composable

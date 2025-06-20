@@ -2,45 +2,70 @@ package com.example.hobbytracker.ui.screens.profile
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import com.example.hobbytracker.ui.components.InitialsAvatar
-import com.example.hobbytracker.util.ColorUtils.getInitials
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.hobbytracker.util.ColorUtils
+import androidx.navigation.NavController
 import com.example.hobbytracker.R
-import com.example.hobbytracker.navigation.Screen
+import com.example.hobbytracker.ui.components.InitialsAvatar
 import com.example.hobbytracker.ui.theme.HobbyTrackerTheme.isDarkTheme
-import com.example.hobbytracker.viewmodels.AuthViewModel
+import com.example.hobbytracker.util.ColorUtils
+import com.example.hobbytracker.util.ColorUtils.getInitials
+import com.example.hobbytracker.viewmodels.ArtCraftViewModel
+import com.example.hobbytracker.viewmodels.GamePlayViewModel
+import com.example.hobbytracker.viewmodels.MusicHobbyViewModel
 import com.example.hobbytracker.viewmodels.ProfileViewModel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import com.example.hobbytracker.viewmodels.ReadingBookViewModel
+import com.example.hobbytracker.viewmodels.SportActivityViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +80,28 @@ fun ProfileScreen(
     var isEditing by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val originalState by viewModel.state.collectAsState()
+    val musicVM: MusicHobbyViewModel = viewModel()
+    val musicTime by musicVM.musicHobbyTotalTime.collectAsState()
+    val sportVM: SportActivityViewModel = viewModel()
+    val sportTime by sportVM.sportActivityTotalDuration.collectAsState()
+    val gamesVM: GamePlayViewModel = viewModel()
+    val gamesTime by gamesVM.gamePlayTotalDuration.collectAsState()
+    val readingVM: ReadingBookViewModel = viewModel()
+    val readingTime by readingVM.readingBookTotalDuration.collectAsState()
+    val artVM: ArtCraftViewModel = viewModel()
+    val artTime by artVM.artCraftTotalDuration.collectAsState()
+
+    val activityData = remember {
+        mapOf(
+            "Спорт" to sportTime,
+            "Искусство" to artTime,
+            "Музыка" to musicTime,
+            "Чтение" to readingTime,
+            "Игры" to gamesTime,
+        )
+    }
+    val totalActivity = activityData.values.sum().toFloat()
+    val colors = listOf(Color.Red, Color.Yellow, Color.Magenta, Color.Blue, Color(0xFF8A2BE2))
 
     LaunchedEffect(originalState) {
         editingState = originalState.copy()
@@ -92,7 +139,7 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .background(if (isDarkTheme) ColorUtils.GraySecondary else Color.White)
+                    .background(if (isDarkTheme) ColorUtils.MainBlueDark else Color.White)
             )
         }
 
@@ -215,9 +262,28 @@ fun ProfileScreen(
                 .padding(top = 120.dp),
             contentAlignment = Alignment.TopCenter
         ) {
+
+            Canvas(
+                modifier = Modifier.size(160.dp)
+            ) {
+                var startAngle = -90f
+                activityData.values.forEachIndexed { index, value ->
+                    val sweepAngle = (value / totalActivity) * 360f
+                    drawArc(
+                        color = colors[index],
+                        startAngle = startAngle,
+                        sweepAngle = sweepAngle,
+                        useCenter = false,
+                        size = size,
+                        style = Stroke(width = 20f)
+                    )
+                    startAngle += sweepAngle
+                }
+            }
+
             Box(
                 modifier = Modifier
-                    .size(140.dp)
+                    .size(160.dp)
                     .shadow(
                         elevation = 20.dp,
                         shape = CircleShape,
@@ -262,7 +328,7 @@ fun ProfileScreen(
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset(x = 50.dp, y = 220.dp)
+                .offset(x = 65.dp, y = 240.dp)
         ) {
             IconButton(
                 onClick = { imagePicker.launch("image/*") },

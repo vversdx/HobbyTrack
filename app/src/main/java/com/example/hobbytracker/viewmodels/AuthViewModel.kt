@@ -78,4 +78,36 @@ class AuthViewModel : ViewModel() {
     fun logout() {
         auth.signOut()
     }
+
+    fun sendPasswordResetEmail(
+        email: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        Log.d("AUTH_DEBUG", "▶️ Starting password reset for: $email")
+
+        try {
+            FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("AUTH_DEBUG", "✅ Password reset email sent successfully")
+                        onResult(true, null)
+                    } else {
+                        val error = task.exception?.apply {
+                            Log.e("AUTH_DEBUG", "❗ Firebase error: ${this.javaClass.simpleName}", this)
+                        }
+                        val errorMsg = error?.message ?: "Unknown error"
+                        Log.e("AUTH_DEBUG", "❌ Failed to send reset email: $errorMsg")
+                        onResult(false, errorMsg)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("AUTH_DEBUG", "🔥 Critical failure", e)
+                    onResult(false, "Critical error: ${e.message}")
+                }
+        } catch (e: Exception) {
+            Log.e("AUTH_DEBUG", "⚡ Exception caught!", e)
+            onResult(false, "Exception: ${e.message}")
+        }
+    }
+
 }

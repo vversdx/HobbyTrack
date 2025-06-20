@@ -203,7 +203,7 @@ private fun DrawerContent(
                 Text(
                     text = name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = ColorUtils.DrawerColor(),
+                    color = Color.White,
                     maxLines = 1
                 )
 
@@ -213,7 +213,7 @@ private fun DrawerContent(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         style = MaterialTheme.typography.bodySmall,
-                        color = ColorUtils.DrawerColor().copy(alpha = 0.8f),
+                        color = Color.White.copy(alpha = 0.8f),
                         maxLines = 1
                     )
                 }
@@ -222,7 +222,7 @@ private fun DrawerContent(
 
         Spacer(modifier = Modifier.height(32.dp))
         HorizontalDivider(
-            color = ColorUtils.DrawerColor().copy(alpha = 0.7f),
+            color = Color.White.copy(alpha = 0.7f),
             thickness = 1.dp,
             modifier = Modifier.fillMaxWidth()
         )
@@ -236,7 +236,7 @@ private fun DrawerContent(
             MenuItem(
                 title = "Моя активность",
                 iconPainter = painterResource(id = R.drawable.ic_activity),
-                route = "activity"
+                route = Screen.Activity.route
             ),
             MenuItem(
                 title = "Мои хобби",
@@ -259,7 +259,7 @@ private fun DrawerContent(
         menuItems.forEach { item ->
             Column {
                 HorizontalDivider(
-                    color = ColorUtils.DrawerColor().copy(alpha = 0.7f),
+                    color = Color.White.copy(alpha = 0.7f),
                     thickness = 1.dp,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -286,14 +286,14 @@ private fun DrawerContent(
                         item.title,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
-                        color = ColorUtils.DrawerColor(),
+                        color = Color.White,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
             }
         }
         HorizontalDivider(
-            color = ColorUtils.DrawerColor().copy(alpha = 0.7f),
+            color = Color.White.copy(alpha = 0.7f),
             thickness = 1.dp,
             modifier = Modifier.fillMaxWidth()
         )
